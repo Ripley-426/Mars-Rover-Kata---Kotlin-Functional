@@ -1,8 +1,9 @@
-package com.kata.roverCommandsTests
+package com.kata.services
 
 import com.kata.Direction
 import com.kata.Rover
-import com.kata.roverCommands.service.RoverCommandsService
+import com.kata.services.RoverObstacleDetectionService
+import com.kata.services.RoverCommandsService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -12,11 +13,12 @@ class RoverCommandsServiceShould {
     private lateinit var _roverCommandsService: RoverCommandsService
     private lateinit var originalRover: Rover
     private val mapSize = Pair(10, 10)
+    private val roverObstacleDetectionService = RoverObstacleDetectionService(mapSize)
 
     @BeforeEach
     fun setup(){
         _roverCommandsService = RoverCommandsService()
-        originalRover= Rover(mapSize, Pair(3,3), Direction.NORTH, _roverCommandsService)
+        originalRover= Rover(mapSize, Pair(3,3), Direction.NORTH, _roverCommandsService, roverObstacleDetectionService)
     }
 
     @Test

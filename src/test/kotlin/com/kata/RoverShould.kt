@@ -1,6 +1,7 @@
 package com.kata
 
-import com.kata.roverCommands.service.RoverCommandsService
+import com.kata.services.RoverCommandsService
+import com.kata.services.RoverObstacleDetectionService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -15,13 +16,15 @@ class RoverShould {
     private val startingXCoordinate: Int = 6
     private val startingYCoordinate: Int = 2
     private val roverCommandsService = RoverCommandsService()
+    private lateinit var roverObstacleDetectionService: RoverObstacleDetectionService
 
     @BeforeEach
     fun setup(){
         startingCoordinates = Pair(startingXCoordinate, startingYCoordinate)
         startingDirection = Direction.SOUTH
         mapSize = Pair(10,10)
-        rover = Rover(mapSize, startingCoordinates, startingDirection, roverCommandsService)
+        roverObstacleDetectionService = RoverObstacleDetectionService(mapSize)
+        rover = Rover(mapSize, startingCoordinates, startingDirection, roverCommandsService, roverObstacleDetectionService)
     }
 
     @Test
@@ -41,14 +44,20 @@ class RoverShould {
 
     @Test
     fun `set default position if starting position is outside map bounds`(){
-    val newRover = Rover(Pair(5,5), Pair(8,8), Direction.NORTH, roverCommandsService)
+    val newRover = Rover(Pair(5,5), Pair(8,8), Direction.NORTH, roverCommandsService, roverObstacleDetectionService)
 
         assertEquals(Pair(0,0), newRover.position)
     }
 
     @Test
     fun `be able to recognize an equal rover`(){
-        val newRover = Rover(rover.mapSize, rover.position, rover.direction, roverCommandsService)
+        val newRover = Rover(
+            rover.mapSize,
+            rover.position,
+            rover.direction,
+            roverCommandsService,
+            roverObstacleDetectionService
+        )
 
         assertTrue(rover.isEqual(newRover))
     }
@@ -127,5 +136,15 @@ class RoverShould {
         val newRover = rover.inputCommands(commands)
 
         assertEquals((Pair(8,2)), newRover.position)
+    }
+
+    @Test
+    fun `move to last possible point when encountering an obstacle`(){
+        val commands = "llfffff"
+        roverObstacleDetectionService.obstacleMap[6][5] = true
+
+        val newRover = rover.inputCommands(commands)
+
+        assertEquals(Pair(6,4), newRover.position)
     }
 }

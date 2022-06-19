@@ -1,4 +1,4 @@
-package com.kata.roverCommands.service
+package com.kata.services
 
 import com.kata.Rover
 import com.kata.roverCommands.*

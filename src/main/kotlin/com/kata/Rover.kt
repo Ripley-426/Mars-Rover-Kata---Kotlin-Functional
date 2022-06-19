@@ -1,8 +1,15 @@
 package com.kata
 
-import com.kata.roverCommands.service.RoverCommandsService
+import com.kata.services.RoverCommandsService
+import com.kata.services.RoverObstacleDetectionService
 
-class Rover(val mapSize: Pair<Int, Int>,  expectedPosition: Pair<Int, Int>, val direction: Direction, private val roverCommandsService: RoverCommandsService) {
+class Rover(
+    val mapSize: Pair<Int, Int>,
+    expectedPosition: Pair<Int, Int>,
+    val direction: Direction,
+    private val roverCommandsService: RoverCommandsService,
+    private val roverObstacleDetectionService: RoverObstacleDetectionService
+) {
 
     var position: Pair<Int, Int>
 
@@ -66,9 +73,18 @@ class Rover(val mapSize: Pair<Int, Int>,  expectedPosition: Pair<Int, Int>, val 
     //endregion
 
     fun inputCommands(commands: String): Rover {
-        var newRover = Rover(mapSize, position, direction, roverCommandsService)
+        var newRover = Rover(mapSize, position, direction, roverCommandsService, roverObstacleDetectionService)
+        var finalRover = newRover
         for (command in commands){
             newRover = roverCommandsService.getCommand(command, newRover).execute()
+            if (roverObstacleDetectionService.isObstacleIn(newRover.position))
+            {
+                return finalRover
+            }
+            else
+            {
+                finalRover = newRover
+            }
         }
         return newRover
     }
@@ -81,19 +97,43 @@ class Rover(val mapSize: Pair<Int, Int>,  expectedPosition: Pair<Int, Int>, val 
     }
 
     fun decreasePosY(): Rover {
-        return Rover(mapSize, Pair(position.first, position.second-1), direction, roverCommandsService)
+        return Rover(
+            mapSize,
+            Pair(position.first, position.second-1),
+            direction,
+            roverCommandsService,
+            roverObstacleDetectionService
+        )
     }
 
     fun increasePosY(): Rover {
-        return Rover(mapSize, Pair(position.first, position.second+1), direction, roverCommandsService)
+        return Rover(
+            mapSize,
+            Pair(position.first, position.second+1),
+            direction,
+            roverCommandsService,
+            roverObstacleDetectionService
+        )
     }
 
     fun decreasePosX(): Rover {
-        return Rover(mapSize, Pair(position.first-1, position.second), direction, roverCommandsService)
+        return Rover(
+            mapSize,
+            Pair(position.first-1, position.second),
+            direction,
+            roverCommandsService,
+            roverObstacleDetectionService
+        )
     }
 
     fun increasePosX(): Rover {
-        return Rover(mapSize, Pair(position.first+1, position.second), direction, roverCommandsService)
+        return Rover(
+            mapSize,
+            Pair(position.first+1, position.second),
+            direction,
+            roverCommandsService,
+            roverObstacleDetectionService
+        )
     }
 
     fun turnLeft(): Rover {
@@ -104,7 +144,7 @@ class Rover(val mapSize: Pair<Int, Int>,  expectedPosition: Pair<Int, Int>, val 
             Direction.EAST -> Direction.NORTH
         }
 
-        return Rover(mapSize, position, newDirection, roverCommandsService)
+        return Rover(mapSize, position, newDirection, roverCommandsService, roverObstacleDetectionService)
     }
 
     fun turnRight(): Rover {
@@ -115,7 +155,7 @@ class Rover(val mapSize: Pair<Int, Int>,  expectedPosition: Pair<Int, Int>, val 
             Direction.EAST -> Direction.SOUTH
         }
 
-        return Rover(mapSize, position, newDirection, roverCommandsService)
+        return Rover(mapSize, position, newDirection, roverCommandsService, roverObstacleDetectionService)
     }
 
 }
